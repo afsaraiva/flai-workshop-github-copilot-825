@@ -13,6 +13,7 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+import os
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework import routers
@@ -29,13 +30,23 @@ from .views import (
 def api_root(request, format=None):
     """
     API Root - OctoFit Tracker API
+    Returns API endpoint URLs based on environment (Codespaces or localhost)
     """
+    # Get the Codespace name from environment variable
+    codespace_name = os.getenv('CODESPACE_NAME')
+    
+    # Determine base URL
+    if codespace_name:
+        base_url = f'https://{codespace_name}-8000.app.github.dev'
+    else:
+        base_url = request.build_absolute_uri('/').rstrip('/')
+    
     return Response({
-        'users': reverse('user-list', request=request, format=format),
-        'teams': reverse('team-list', request=request, format=format),
-        'activities': reverse('activity-list', request=request, format=format),
-        'workouts': reverse('workout-list', request=request, format=format),
-        'leaderboard': reverse('leaderboard-list', request=request, format=format),
+        'users': f'{base_url}/api/users/',
+        'teams': f'{base_url}/api/teams/',
+        'activities': f'{base_url}/api/activities/',
+        'workouts': f'{base_url}/api/workouts/',
+        'leaderboard': f'{base_url}/api/leaderboard/',
     })
 
 
